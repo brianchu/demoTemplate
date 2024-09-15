@@ -4,9 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.util.Log
 import com.example.demoapp.ads.AdManager
-import com.example.demoapp.ads.AdViewModel
 import com.vungle.ads.InitializationListener
-import com.vungle.ads.InterstitialAd
 import com.vungle.ads.VungleAds
 import com.vungle.ads.VungleError
 import dagger.hilt.android.HiltAndroidApp

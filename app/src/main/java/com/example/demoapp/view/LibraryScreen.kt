@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,18 +36,20 @@ import androidx.navigation.NavHostController
 import com.example.demoapp.AttributionText
 import com.example.demoapp.CharacterImage
 import com.example.demoapp.Destination
-import com.example.demoapp.ads.AdViewModel
+import com.example.demoapp.viewmodel.InterstitialAdViewModel
 import com.example.demoapp.model.CharacterResult
 import com.example.demoapp.model.CharactersApiResponse
 import com.example.demoapp.model.api.NetworkResult
 import com.example.demoapp.viewmodel.LibraryApiViewModel
+import com.example.demoapp.viewmodel.RewardedAdViewModel
 
 @Composable
 fun LibraryScreen(
     navController: NavHostController,
-    adViewModel: AdViewModel,
+    interstitialAdViewModel: InterstitialAdViewModel,
+    rewardedAdViewModel: RewardedAdViewModel,
     vm: LibraryApiViewModel,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
 ) {
     val result by vm.result.collectAsState()
     val text = vm.queryText.collectAsState()
@@ -79,7 +80,7 @@ fun LibraryScreen(
                 }
 
                 is NetworkResult.Success -> {
-                    ShowCharactersList(result, navController, adViewModel)
+                    ShowCharactersList(result, navController, interstitialAdViewModel, rewardedAdViewModel)
                 }
 
                 is NetworkResult.Loading -> {
@@ -99,10 +100,11 @@ fun LibraryScreen(
 fun ShowCharactersList(
     result: NetworkResult<CharactersApiResponse>,
     navController: NavHostController,
-    adViewModel: AdViewModel
+    interstitialAdViewModel: InterstitialAdViewModel,
+    rewardedAdViewModel: RewardedAdViewModel
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        AdBanner()
+        BannerAd()
         result.data?.data?.results?.let { characters: List<CharacterResult> ->
             LazyColumn(
                 modifier = Modifier.background(Color.LightGray),
@@ -114,11 +116,17 @@ fun ShowCharactersList(
                     }
                 }
 
-                items(characters) { character ->
+                itemsIndexed(characters) { index, character ->
+
+                    val context = LocalContext.current
+
+                    if (index == 2) {
+                        RewardedAd(rewardedAdViewModel)
+                    }
+
                     val imageUrl = character.thumbnail?.path + "." + character.thumbnail?.extension
                     val title = character.name
                     val description = character.description
-                    val context = LocalContext.current
                     val id = character.id
 
                     Column(
@@ -131,18 +139,14 @@ fun ShowCharactersList(
                             .wrapContentHeight()
                             .clickable {
                                 if (character.id != null)
-                                    adViewModel.showAd {
+                                    interstitialAdViewModel.showAd {
                                         navController.navigate(
                                             Destination.CharacterDetail.createRoute(id)
                                         )
                                     }
                                 else
                                     Toast
-                                        .makeText(
-                                            context,
-                                            "Character id is null",
-                                            Toast.LENGTH_SHORT
-                                        )
+                                        .makeText(context, "Character id is null", Toast.LENGTH_SHORT)
                                         .show()
                             }
                     ) {
@@ -171,3 +175,4 @@ fun ShowCharactersList(
         }
     }
 }
+

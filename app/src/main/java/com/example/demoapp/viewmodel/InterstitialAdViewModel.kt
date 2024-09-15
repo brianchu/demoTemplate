@@ -1,4 +1,4 @@
-package com.example.demoapp.ads
+package com.example.demoapp.viewmodel
 
 import android.app.Application
 import android.util.Log
@@ -9,7 +9,7 @@ import com.vungle.ads.InterstitialAd
 import com.vungle.ads.InterstitialAdListener
 import com.vungle.ads.VungleError
 
-class AdViewModel(application: Application) : AndroidViewModel(application) {
+class InterstitialAdViewModel(application: Application) : AndroidViewModel(application) {
 
     private var interstitialAd: InterstitialAd? = null
     private var onAdDismissedCallback: (() -> Unit)? = null
@@ -24,21 +24,23 @@ class AdViewModel(application: Application) : AndroidViewModel(application) {
         ).apply {
             adListener = object : InterstitialAdListener {
                 override fun onAdClicked(baseAd: BaseAd) {
+                    Log.d(TAG, "interstitial ad (${baseAd.creativeId}): onAdClicked")
                 }
 
                 override fun onAdEnd(baseAd: BaseAd) {
-                    Log.d(TAG, "interstitial ad: on ad end")
+                    Log.d(TAG, "interstitial ad (${baseAd.creativeId}): onAdEnd")
                     onAdDismissedCallback?.invoke()
                     onAdDismissedCallback = null
                     loadAd()
                 }
 
                 override fun onAdFailedToLoad(baseAd: BaseAd, adError: VungleError) {
-                    Log.d(TAG, "interstitial ad: fail to load ${adError.errorMessage}")
+                    Log.d(TAG, "interstitial ad (${baseAd.creativeId}): onFailedToLoad ${adError.errorMessage}")
                     onAdDismissedCallback = null
                 }
 
                 override fun onAdFailedToPlay(baseAd: BaseAd, adError: VungleError) {
+                    Log.d(TAG, "interstitial ad (${baseAd.creativeId}): onFailedToPlay ${adError.errorMessage}")
                     onAdDismissedCallback?.invoke()
                     onAdDismissedCallback = null
                     loadAd()
@@ -46,14 +48,14 @@ class AdViewModel(application: Application) : AndroidViewModel(application) {
 
                 override fun onAdImpression(baseAd: BaseAd) {}
 
-                override fun onAdLeftApplication(baseAd: BaseAd) {
-                }
+                override fun onAdLeftApplication(baseAd: BaseAd) {}
 
                 override fun onAdLoaded(baseAd: BaseAd) {
-                    Log.d(TAG, "interstitial ad: ad loaded!")
+                    Log.d(TAG, "interstitial ad (${baseAd.creativeId}): onAdLoaded")
                 }
 
                 override fun onAdStart(baseAd: BaseAd) {
+                    Log.d(TAG, "interstitial ad (${baseAd.creativeId}): onAdStart")
                 }
             }
 
@@ -63,9 +65,10 @@ class AdViewModel(application: Application) : AndroidViewModel(application) {
 
     fun showAd(onAdDismissed: () -> Unit) {
         interstitialAd?.let { ad ->
-            if (interstitialAd?.canPlayAd() == true) {
-                Log.d(TAG, "interstitial ad:show")
-                interstitialAd?.play()
+            if (ad.canPlayAd()) {
+                onAdDismissedCallback = onAdDismissed
+                Log.d(TAG, "interstitial ad: play")
+                ad.play()
             } else {
                 Log.d(TAG, "interstitial ad:not ready yet")
                 onAdDismissed()
@@ -77,6 +80,8 @@ class AdViewModel(application: Application) : AndroidViewModel(application) {
     }
 }
 
-private const val PLACEMENT_APP_OPEN = "STARTUPAD-0506795"
-private const val PLACEMENT_INTERSTITIAL = "MYINTERSTITIAL-2494988"
-private const val TAG = "ads"
+const val PLACEMENT_MREC = "VIDEOAD1-7818877"
+const val PLACEMENT_NATIVE = "NATIVEINSIDEROW-0006551"
+const val PLACEMENT_APP_OPEN = "STARTUPAD-0506795"
+const val PLACEMENT_INTERSTITIAL = "MYINTERSTITIAL-2494988"
+private const val TAG = "adviewmodel"

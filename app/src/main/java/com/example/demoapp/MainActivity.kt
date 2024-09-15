@@ -17,13 +17,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.demoapp.Destination.Library
-import com.example.demoapp.ads.AdViewModel
+import com.example.demoapp.viewmodel.InterstitialAdViewModel
 import com.example.demoapp.ui.theme.DemoAppTheme
 import com.example.demoapp.view.CharacterDetailScreen
 import com.example.demoapp.view.CharactersBottomNav
 import com.example.demoapp.view.CollectionScreen
 import com.example.demoapp.view.LibraryScreen
 import com.example.demoapp.viewmodel.LibraryApiViewModel
+import com.example.demoapp.viewmodel.RewardedAdViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -38,7 +39,8 @@ sealed class Destination(val route: String) {
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var adViewModel: AdViewModel
+    private lateinit var interstitialAdViewModel: InterstitialAdViewModel
+    private lateinit var rewardedAdViewModel: RewardedAdViewModel
 
     private val lvm by viewModels<LibraryApiViewModel>()
 
@@ -46,9 +48,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge()
 
+        interstitialAdViewModel = ViewModelProvider(this)[InterstitialAdViewModel::class.java]
+        interstitialAdViewModel.loadAd()
 
-        adViewModel = ViewModelProvider(this)[AdViewModel::class.java]
-        adViewModel.loadAd()
+        rewardedAdViewModel = ViewModelProvider(this)[RewardedAdViewModel::class.java]
+        rewardedAdViewModel.loadRewardedAd()
 
         setContent {
             DemoAppTheme {
@@ -57,7 +61,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    CharactersScaffold(navController = navController, lvm, adViewModel)
+                    CharactersScaffold(navController = navController, lvm, interstitialAdViewModel, rewardedAdViewModel)
                 }
             }
         }
@@ -65,7 +69,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CharactersScaffold(navController: NavHostController, lvm: LibraryApiViewModel, adViewModel: AdViewModel) {
+fun CharactersScaffold(
+    navController: NavHostController,
+    lvm: LibraryApiViewModel,
+    interstitialAdViewModel: InterstitialAdViewModel,
+    rewardedAdViewModel: RewardedAdViewModel
+) {
     val ctx = LocalContext.current
     Scaffold(
         bottomBar = { CharactersBottomNav(navController) }
@@ -79,7 +88,8 @@ fun CharactersScaffold(navController: NavHostController, lvm: LibraryApiViewMode
                     navController = navController,
                     vm = lvm,
                     paddingValues = contentPadding,
-                    adViewModel = adViewModel
+                    interstitialAdViewModel = interstitialAdViewModel,
+                    rewardedAdViewModel = rewardedAdViewModel
                 )
             }
             composable(Destination.Collection.route) {

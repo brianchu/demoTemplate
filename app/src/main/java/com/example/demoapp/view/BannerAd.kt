@@ -3,7 +3,6 @@ package com.example.demoapp.view
 import android.content.Context
 import android.util.Log
 import android.view.View
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Text
@@ -24,7 +23,7 @@ import com.vungle.ads.VungleBannerView
 import com.vungle.ads.VungleError
 
 @Composable
-fun AdBanner() {
+fun BannerAd() {
 
     val isAdSdkInitialized =
         (LocalContext.current.applicationContext as DemoApplication).isAdSdkInitialized.collectAsState()
