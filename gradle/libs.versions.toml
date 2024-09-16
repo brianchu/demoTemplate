@@ -21,6 +21,8 @@ materialIconsCoreAndroid = "1.7.1"
 materialIconsExtended = "1.7.1"
 vungleAds = "7.4.1"
 playServicesAdsIdentifier = "18.1.0"
+hiltNavigationCompose = "1.2.0"
+constraintlayout = "2.1.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +52,8 @@ androidx-material-icons-core-android = { group = "androidx.compose.material", na
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended", version.ref = "materialIconsExtended" }
 vungle-ads = { group = "com.vungle", name = "vungle-ads", version.ref = "vungleAds" }
 play-services-ads-identifier = { group = "com.google.android.gms", name = "play-services-ads-identifier", version.ref = "playServicesAdsIdentifier" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

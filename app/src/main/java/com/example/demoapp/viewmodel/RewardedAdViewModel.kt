@@ -1,7 +1,6 @@
 package com.example.demoapp.viewmodel
 
 import android.app.Application
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
@@ -10,8 +9,13 @@ import com.vungle.ads.BaseAd
 import com.vungle.ads.RewardedAd
 import com.vungle.ads.RewardedAdListener
 import com.vungle.ads.VungleError
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class RewardedAdViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class RewardedAdViewModel @Inject constructor(
+    application: Application
+) : AndroidViewModel(application) {
 
     private var whatToDoAfterClose: (() -> Unit)? = null
     private var rewardedAd: RewardedAd? = null

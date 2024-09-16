@@ -85,6 +85,8 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.vungle.ads)
     implementation(libs.play.services.ads.identifier)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.constraintlayout)
     kapt(libs.hilt.android.compiler)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

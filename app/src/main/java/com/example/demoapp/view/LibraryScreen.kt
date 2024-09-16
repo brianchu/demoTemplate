@@ -124,6 +124,10 @@ fun ShowCharactersList(
                         RewardedAd(rewardedAdViewModel)
                     }
 
+                    if (index == 4) {
+                        NativeAd()
+                    }
+
                     val imageUrl = character.thumbnail?.path + "." + character.thumbnail?.extension
                     val title = character.name
                     val description = character.description

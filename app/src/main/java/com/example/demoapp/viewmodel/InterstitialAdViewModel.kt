@@ -8,8 +8,13 @@ import com.vungle.ads.BaseAd
 import com.vungle.ads.InterstitialAd
 import com.vungle.ads.InterstitialAdListener
 import com.vungle.ads.VungleError
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class InterstitialAdViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class InterstitialAdViewModel @Inject constructor(
+    private val application: Application
+) : AndroidViewModel(application) {
 
     private var interstitialAd: InterstitialAd? = null
     private var onAdDismissedCallback: (() -> Unit)? = null
