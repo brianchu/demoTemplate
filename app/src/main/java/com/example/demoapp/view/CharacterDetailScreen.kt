@@ -16,6 +16,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
@@ -26,18 +28,20 @@ import androidx.navigation.NavHostController
 import com.example.demoapp.CharacterImage
 import com.example.demoapp.Destination
 import com.example.demoapp.comicsToString
+import com.example.demoapp.model.db.DbCharacter
+import com.example.demoapp.viewmodel.CollectionDbViewModel
 import com.example.demoapp.viewmodel.LibraryApiViewModel
 
 @Composable
 fun CharacterDetailScreen(
     lvm: LibraryApiViewModel,
-//    cvm: CollectionDbViewModel,
+    cvm: CollectionDbViewModel,
     paddingValues: PaddingValues,
     navController: NavHostController
 ) {
     val character = lvm.characterDetails.value
-//    val collection by cvm.collection.collectAsState()
-//    val inCollection = collection.map { it.apiId }.contains(character?.id)
+    val collection: List<DbCharacter> by cvm.collection.collectAsState()
+    val inCollection = collection.map { it.apiId }.contains(character?.id)
 
     if (character == null) {
         navController.navigate(Destination.Library.route) {
@@ -46,9 +50,9 @@ fun CharacterDetailScreen(
         }
     }
 
-//    LaunchedEffect(key1 = Unit) {
-//        cvm.setCurrentCharacterId(character?.id)
-//    }
+    LaunchedEffect(key1 = Unit) {
+        cvm.setCurrentCharacterId(character?.id)
+    }
 
     Column(
         modifier = Modifier
@@ -87,10 +91,10 @@ fun CharacterDetailScreen(
         Text(text = description, fontSize = 16.sp, modifier = Modifier.padding(4.dp))
 
         Button(onClick = {
-//            if (!inCollection && character != null)
-//                cvm.addCharacter(character)
+            if (!inCollection && character != null)
+                cvm.addCharacter(character)
         }, modifier = Modifier.padding(bottom = 20.dp)) {
-//            if (!inCollection) {
+            if (!inCollection) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
@@ -98,15 +102,15 @@ fun CharacterDetailScreen(
                     Icon(Icons.Default.Add, contentDescription = null)
                     Text(text = "Add to collection")
                 }
-//            } else {
-//                Column(
-//                    horizontalAlignment = Alignment.CenterHorizontally,
-//                    modifier = Modifier.fillMaxWidth()
-//                ) {
-//                    Icon(Icons.Default.Check, contentDescription = null)
-//                    Text(text = "Added")
-//                }
-//            }
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Default.Check, contentDescription = null)
+                    Text(text = "Added")
+                }
+            }
         }
     }
 }

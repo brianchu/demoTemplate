@@ -12,18 +12,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.demoapp.Destination.Library
-import com.example.demoapp.viewmodel.InterstitialAdViewModel
 import com.example.demoapp.ui.theme.DemoAppTheme
 import com.example.demoapp.view.CharacterDetailScreen
 import com.example.demoapp.view.CharactersBottomNav
 import com.example.demoapp.view.CollectionScreen
 import com.example.demoapp.view.LibraryScreen
+import com.example.demoapp.viewmodel.CollectionDbViewModel
+import com.example.demoapp.viewmodel.InterstitialAdViewModel
 import com.example.demoapp.viewmodel.LibraryApiViewModel
 import com.example.demoapp.viewmodel.RewardedAdViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,6 +42,7 @@ sealed class Destination(val route: String) {
 class MainActivity : ComponentActivity() {
 
     private val lvm by viewModels<LibraryApiViewModel>()
+    private val cvm by viewModels<CollectionDbViewModel>()
     private val interstitialAdViewModel by viewModels<InterstitialAdViewModel>()
     private val rewardedAdViewModel by viewModels<RewardedAdViewModel>()
 
@@ -60,7 +61,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
-                    CharactersScaffold(navController = navController, lvm)
+                    CharactersScaffold(navController = navController, lvm, cvm)
                 }
             }
         }
@@ -70,7 +71,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun CharactersScaffold(
     navController: NavHostController,
-    lvm: LibraryApiViewModel
+    lvm: LibraryApiViewModel,
+    cvm: CollectionDbViewModel
 ) {
     val rewardedAdViewModel : RewardedAdViewModel = hiltViewModel()
     val interstitialAdViewModel : InterstitialAdViewModel = hiltViewModel()
@@ -93,7 +95,7 @@ fun CharactersScaffold(
                 )
             }
             composable(Destination.Collection.route) {
-                CollectionScreen()
+                CollectionScreen(cvm = cvm, navController = navController)
             }
             composable(Destination.CharacterDetail.route) { navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("characterId")?.toIntOrNull()
@@ -102,6 +104,7 @@ fun CharactersScaffold(
                 } else {
                     lvm.retrieveSingleCharacter(id)
                     CharacterDetailScreen(
+                        cvm = cvm,
                         lvm = lvm,
                         paddingValues = contentPadding,
                         navController = navController
