@@ -18,7 +18,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 @Module
 @InstallIn(ViewModelComponent::class)
 class HiltModule {
-
     @Provides
     fun provideApiRepo() = MarvelApiRepo(ApiService.api)
 
