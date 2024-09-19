@@ -6,6 +6,7 @@ import com.example.demoapp.model.api.ApiService
 import com.example.demoapp.model.api.MarvelApiRepo
 import com.example.demoapp.model.db.CharacterDao
 import com.example.demoapp.model.db.CollectionDb
+import com.example.demoapp.model.db.CollectionDbRepo
 import com.example.demoapp.model.db.CollectionDbRepoImpl
 import com.example.demoapp.model.db.Constants.DB
 import dagger.Module
@@ -17,7 +18,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 @Module
 @InstallIn(ViewModelComponent::class)
 class HiltModule {
-
     @Provides
     fun provideApiRepo() = MarvelApiRepo(ApiService.api)
 
@@ -26,9 +26,11 @@ class HiltModule {
         Room.databaseBuilder(context, CollectionDb::class.java, DB).build()
 
     @Provides
-    fun provideCharactersDb(collectionDb: CollectionDb) =
-        collectionDb.characterDao()
+    fun provideCharacterDao(collectionDb: CollectionDb): CharacterDao = collectionDb.characterDao()
+
+//    @Provides
+//    fun provideCharactersDb(collectionDb: CollectionDb): CharacterDao = collectionDb.characterDao()
 
     @Provides
-    fun provideDbRepoImpl(characterDao: CharacterDao) = CollectionDbRepoImpl(characterDao)
+    fun provideDbRepoImpl(characterDao: CharacterDao) : CollectionDbRepo = CollectionDbRepoImpl(characterDao)
 }
