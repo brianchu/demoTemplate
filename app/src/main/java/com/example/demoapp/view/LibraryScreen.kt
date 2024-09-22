@@ -41,13 +41,11 @@ import com.example.demoapp.model.CharacterResult
 import com.example.demoapp.model.CharactersApiResponse
 import com.example.demoapp.model.api.NetworkResult
 import com.example.demoapp.viewmodel.LibraryApiViewModel
-import com.example.demoapp.viewmodel.RewardedAdViewModel
 
 @Composable
 fun LibraryScreen(
     navController: NavHostController,
     interstitialAdViewModel: InterstitialAdViewModel,
-    rewardedAdViewModel: RewardedAdViewModel,
     vm: LibraryApiViewModel,
     paddingValues: PaddingValues,
 ) {
@@ -80,7 +78,7 @@ fun LibraryScreen(
                 }
 
                 is NetworkResult.Success -> {
-                    ShowCharactersList(result, navController, interstitialAdViewModel, rewardedAdViewModel)
+                    ShowCharactersList(result, navController, interstitialAdViewModel)
                 }
 
                 is NetworkResult.Loading -> {
@@ -101,10 +99,12 @@ fun ShowCharactersList(
     result: NetworkResult<CharactersApiResponse>,
     navController: NavHostController,
     interstitialAdViewModel: InterstitialAdViewModel,
-    rewardedAdViewModel: RewardedAdViewModel
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
+
+        // one ad stay here
         BannerAd()
+
         result.data?.data?.results?.let { characters: List<CharacterResult> ->
             LazyColumn(
                 modifier = Modifier.background(Color.LightGray),
@@ -117,15 +117,16 @@ fun ShowCharactersList(
                 }
 
                 itemsIndexed(characters) { index, character ->
-
                     val context = LocalContext.current
 
+                    // casual rule, show rewarded ad when there are at least 2 results
                     if (index == 2) {
-                        RewardedAd(rewardedAdViewModel)
+                        RewardedAdCompose()
                     }
 
+                    // casual rule, show native ad when there are at least 4 results
                     if (index == 4) {
-                        NativeAd()
+                        NativeAdCompose()
                     }
 
                     val imageUrl = character.thumbnail?.path + "." + character.thumbnail?.extension

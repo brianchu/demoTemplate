@@ -21,7 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,7 +38,7 @@ import com.example.demoapp.viewmodel.CollectionDbViewModel
 fun CollectionScreen(cvm: CollectionDbViewModel, navController: NavHostController) {
 
     val charactersInCollection = cvm.collection.collectAsState()
-    val expandedElement = remember { mutableStateOf(-1) }
+    val expandedElement = remember { mutableIntStateOf(-1) }
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(charactersInCollection.value) { character ->
@@ -48,10 +48,10 @@ fun CollectionScreen(cvm: CollectionDbViewModel, navController: NavHostControlle
                     .height(100.dp)
                     .padding(4.dp)
                     .clickable {
-                        if (expandedElement.value == character.id) {
-                            expandedElement.value = -1
+                        if (expandedElement.intValue == character.id) {
+                            expandedElement.intValue = -1
                         } else {
-                            expandedElement.value = character.id
+                            expandedElement.intValue = character.id
                         }
                     }) {
                     CharacterImage(
@@ -92,7 +92,7 @@ fun CollectionScreen(cvm: CollectionDbViewModel, navController: NavHostControlle
                             }
                         )
 
-                        if (character.id == expandedElement.value)
+                        if (character.id == expandedElement.intValue)
                             Icon(Icons.Outlined.KeyboardArrowUp, contentDescription = null)
                         else
                             Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = null)

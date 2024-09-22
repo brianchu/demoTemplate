@@ -40,3 +40,6 @@ fun CharacterImage(
 fun List<String>.comicsToString(): String {
     return joinToString(separator = ", ")
 }
+
+// new log trick
+fun <T: Any>T.tag() :String =  this::class.java.toString()

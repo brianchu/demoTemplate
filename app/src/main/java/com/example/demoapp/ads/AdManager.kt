@@ -2,13 +2,11 @@ package com.example.demoapp.ads
 
 import android.content.Context
 import android.util.Log
+import com.example.demoapp.tag
 import com.google.android.gms.ads.identifier.AdvertisingIdClient
 
 object AdManager {
-
-    // TODO convert to coroutine
     fun getGAIDTask(context: Context): String? {
-
         try {
             val adInfo = AdvertisingIdClient.getAdvertisingIdInfo(context)
             return if (!adInfo.isLimitAdTrackingEnabled) {
@@ -17,11 +15,8 @@ object AdManager {
                 null
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error retrieving GAID")
+            Log.e(tag(), "Error retrieving GAID ${e.localizedMessage}")
             return null
         }
     }
-
-    private const val TAG = "AdManager"
-
 }

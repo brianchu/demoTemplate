@@ -2,29 +2,50 @@ package com.example.demoapp.viewmodel
 
 import android.app.Application
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.demoapp.DemoApplication
 import com.vungle.ads.AdConfig
 import com.vungle.ads.BaseAd
 import com.vungle.ads.RewardedAd
 import com.vungle.ads.RewardedAdListener
 import com.vungle.ads.VungleError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+sealed class AdState {
+    data object Loading : AdState()
+    data object Loaded : AdState()
+    data class Error(var error: String?) : AdState()
+}
 
 @HiltViewModel
 class RewardedAdViewModel @Inject constructor(
-    application: Application
+    private var application: Application
 ) : AndroidViewModel(application) {
 
-    private var whatToDoAfterClose: (() -> Unit)? = null
     private var rewardedAd: RewardedAd? = null
 
-    val isAdLoading = mutableStateOf(false)
-    val isAdLoaded = mutableStateOf(false)
+    private val _adState = MutableStateFlow<AdState>(AdState.Loading)
+    val adState = _adState.asStateFlow()
 
-    fun loadRewardedAd(placementId: String = PLACEMENT_REWARDED) {
+    init {
+        viewModelScope.launch {
+            (application as DemoApplication).isAdSdkInitialized.collect { isInitialized ->
+                if (isInitialized) {
+                    loadRewardedAd()
+                }
+            }
+        }
+    }
+
+    private fun loadRewardedAd(placementId: String = PLACEMENT_REWARDED) {
         val context = getApplication<Application>().applicationContext
+
+        Log.d(TAG, "rewarded ad: created. $this")
 
         rewardedAd = RewardedAd(context, placementId, AdConfig().apply {
             Log.d(TAG, "rewarded ad: created. $this")
@@ -33,29 +54,22 @@ class RewardedAdViewModel @Inject constructor(
         rewardedAd?.adListener = object : RewardedAdListener {
             override fun onAdLoaded(baseAd: BaseAd) {
                 Log.d(TAG, "rewarded ad(${baseAd.creativeId}): onAdLoaded $baseAd")
-                isAdLoading.value = false
-                isAdLoaded.value = true
-//                rewardedAd = baseAd // check if it's the same
+                _adState.value = AdState.Loaded
             }
 
             override fun onAdClicked(baseAd: BaseAd) {}
 
-            override fun onAdEnd(baseAd: BaseAd) {
-                whatToDoAfterClose?.invoke()
-            }
+            override fun onAdEnd(baseAd: BaseAd) {}
 
             override fun onAdFailedToLoad(baseAd: BaseAd, adError: VungleError) {
                 Log.d(TAG, "rewarded ad: onAdFailedToLoad $baseAd ${adError.errorMessage}")
-                // Handle error
-                isAdLoading.value = false
-                isAdLoaded.value = false
+                _adState.value = AdState.Error(adError.errorMessage)
                 rewardedAd = null
             }
 
             override fun onAdFailedToPlay(baseAd: BaseAd, adError: VungleError) {
                 Log.d(TAG, "rewarded ad: onAdFailedToPlay $baseAd ${adError.errorMessage}")
-                isAdLoading.value = false
-                isAdLoaded.value = false
+                _adState.value = AdState.Error(adError.errorMessage)
                 rewardedAd = null
             }
 
@@ -65,25 +79,20 @@ class RewardedAdViewModel @Inject constructor(
 
             override fun onAdRewarded(baseAd: BaseAd) {
                 Log.d(TAG, "rewarded ad: onAdRewarded $baseAd")
-                // Grant the user their reward
+                // e.g. grant the user their reward
             }
 
             override fun onAdStart(baseAd: BaseAd) {
                 Log.d(TAG, "rewarded ad: onAdStart $baseAd")
             }
-
-
-            // Implement other listener methods as needed
         }
 
-        isAdLoading.value = true
-        rewardedAd?.load() // Load the ad
+        rewardedAd?.load()
     }
 
-    fun showRewardedAd(onAdClosed: () -> Unit) {
+    fun showRewardedAd() {
         rewardedAd?.let { ad ->
             if (ad.canPlayAd()) {
-                whatToDoAfterClose = onAdClosed
                 ad.play()
             } else {
                 Log.d(TAG, "rewarded ad: canPlayAd fail")
@@ -100,7 +109,7 @@ class RewardedAdViewModel @Inject constructor(
 
     companion object {
         const val PLACEMENT_REWARDED = "REWARDEDTEST-3794802"
-        const val TAG = "rewardedad"
+        const val TAG = "ads"
     }
 
 }

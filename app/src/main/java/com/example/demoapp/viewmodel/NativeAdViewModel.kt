@@ -1,27 +1,23 @@
 package com.example.demoapp.viewmodel
 
 import android.app.Application
-import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import com.vungle.ads.BaseAd
 import com.vungle.ads.NativeAd
-import com.vungle.ads.NativeAdListener
 import com.vungle.ads.VungleError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
-// Ad state definitions
-sealed class AdState {
-    data object Loading : AdState()
-    data class Loaded(val adData: AdData, val nativeAd: NativeAd) : AdState()
-    data class Error(val error: VungleError) : AdState()
+// Native Ad state definitions
+sealed class NativeAdState {
+    data object Loading : NativeAdState()
+    data class Loaded(val nativeAdData: NativeAdData, val nativeAd: NativeAd) : NativeAdState()
+    data class Error(val error: VungleError) : NativeAdState()
 }
 
-
-data class AdData(
+data class NativeAdData(
     val adTitle: String?,
     val adBodyText: String?,
     val adStarRating: String?,
@@ -30,89 +26,38 @@ data class AdData(
     val hasCallToAction: Boolean
 )
 
-
 @HiltViewModel
 class NativeAdViewModel @Inject constructor(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private var whatToDoAfterClose: (() -> Unit)? = null
-    private var nativeAd: NativeAd? = null
-
-    private val _adState = MutableStateFlow<AdState> (AdState.Loading)
+    private val _adState = MutableStateFlow<NativeAdState> (NativeAdState.Loading)
     val adState = _adState.asStateFlow()
 
-    val isAdLoading = mutableStateOf(false)
-    val isAdLoaded = mutableStateOf(false)
-
-    fun loadNativeAd(placementId: String = PLACEMENT_NATIVE_AD) {
-        val context = getApplication<Application>().applicationContext
-
-        Log.d(TAG, "native ad: created. $this")
-        nativeAd = NativeAd(context, placementId)
-        nativeAd?.adListener = object : NativeAdListener {
-            override fun onAdLoaded(baseAd: BaseAd) {
-                Log.d(TAG, "native ad(${baseAd.creativeId}): onAdLoaded $baseAd")
-                isAdLoading.value = false
-                isAdLoaded.value = true
-            }
-
-            override fun onAdClicked(baseAd: BaseAd) {}
-
-            override fun onAdEnd(baseAd: BaseAd) {
-                whatToDoAfterClose?.invoke()
-            }
-
-            override fun onAdFailedToLoad(baseAd: BaseAd, adError: VungleError) {
-                Log.d(TAG, "native ad: onAdFailedToLoad $baseAd ${adError.errorMessage}")
-                // Handle error
-                isAdLoading.value = false
-                isAdLoaded.value = false
-                nativeAd = null
-            }
-
-            override fun onAdFailedToPlay(baseAd: BaseAd, adError: VungleError) {
-                Log.d(TAG, "native ad: onAdFailedToPlay $baseAd ${adError.errorMessage}")
-                isAdLoading.value = false
-                isAdLoaded.value = false
-                nativeAd = null
-            }
-
-            override fun onAdImpression(baseAd: BaseAd) {}
-
-            override fun onAdLeftApplication(baseAd: BaseAd) {}
-
-            override fun onAdStart(baseAd: BaseAd) {
-                Log.d(TAG, "native ad: onAdStart $baseAd")
-            }
-        }
-
-        isAdLoading.value = true
-        nativeAd?.load() // Load the ad
+    fun onAdLoaded(baseAd: BaseAd) {
+        val ad = baseAd as NativeAd
+        _adState.value = NativeAdState.Loaded(
+            nativeAdData = NativeAdData(
+                adTitle = ad.getAdTitle(),
+                adBodyText = ad.getAdBodyText(),
+                adStarRating = "${ad.getAdStarRating()}",
+                adSponsoredText = ad.getAdSponsoredText(),
+                adCallToActionText =  ad.getAdCallToActionText(),
+                hasCallToAction = ad.hasCallToAction()
+            ),
+            nativeAd = ad
+        )
     }
 
-    fun showNativeAd(onAdClosed: () -> Unit) {
-        nativeAd?.let { ad ->
-            if (ad.canPlayAd()) {
-                whatToDoAfterClose = onAdClosed
-                // fill up all data into a flow that the UI can use
-                ad.getAdStarRating()
-            } else {
-                Log.d(TAG, "native ad: canPlayAd fail")
-            }
-        } ?: run {
-            Log.d(TAG, "native ad: native ad obj null")
-        }
+    fun onAdFailedToLoad(adError: VungleError) {
+        _adState.value = NativeAdState.Error(adError)
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        nativeAd?.unregisterView()
-        nativeAd = null
+    fun onAdFailedToPlay(adError: VungleError) {
+        _adState.value = NativeAdState.Error(adError)
     }
 
     companion object {
         const val PLACEMENT_NATIVE_AD = "NATIVEINSIDEROW-0006551"
-        const val TAG = "nativead"
     }
 }

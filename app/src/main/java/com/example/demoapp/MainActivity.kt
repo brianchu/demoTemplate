@@ -25,7 +25,6 @@ import com.example.demoapp.view.LibraryScreen
 import com.example.demoapp.viewmodel.CollectionDbViewModel
 import com.example.demoapp.viewmodel.InterstitialAdViewModel
 import com.example.demoapp.viewmodel.LibraryApiViewModel
-import com.example.demoapp.viewmodel.RewardedAdViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -37,23 +36,14 @@ sealed class Destination(val route: String) {
     }
 }
 
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private val lvm by viewModels<LibraryApiViewModel>()
     private val cvm by viewModels<CollectionDbViewModel>()
-    private val interstitialAdViewModel by viewModels<InterstitialAdViewModel>()
-    private val rewardedAdViewModel by viewModels<RewardedAdViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-
-        // Call loadRewardedAd() as soon as the activity is created
-        interstitialAdViewModel.loadAd()
-        rewardedAdViewModel.loadRewardedAd()
-
         setContent {
             DemoAppTheme {
                 Surface(
@@ -74,7 +64,6 @@ fun CharactersScaffold(
     lvm: LibraryApiViewModel,
     cvm: CollectionDbViewModel
 ) {
-    val rewardedAdViewModel : RewardedAdViewModel = hiltViewModel()
     val interstitialAdViewModel : InterstitialAdViewModel = hiltViewModel()
 
     val ctx = LocalContext.current
@@ -90,8 +79,7 @@ fun CharactersScaffold(
                     navController = navController,
                     vm = lvm,
                     paddingValues = contentPadding,
-                    interstitialAdViewModel = interstitialAdViewModel,
-                    rewardedAdViewModel = rewardedAdViewModel
+                    interstitialAdViewModel = interstitialAdViewModel
                 )
             }
             composable(Destination.Collection.route) {
@@ -100,7 +88,7 @@ fun CharactersScaffold(
             composable(Destination.CharacterDetail.route) { navBackStackEntry ->
                 val id = navBackStackEntry.arguments?.getString("characterId")?.toIntOrNull()
                 if (id == null) {
-                    Toast.makeText(ctx, "", Toast.LENGTH_LONG).show()
+                    Toast.makeText(ctx, "character id error", Toast.LENGTH_LONG).show()
                 } else {
                     lvm.retrieveSingleCharacter(id)
                     CharacterDetailScreen(

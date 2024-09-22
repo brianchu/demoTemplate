@@ -26,14 +26,14 @@
         android:id="@+id/lbAdTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="App Title"
+        tools:text="App Title"
         android:textStyle="bold"
         android:textSize="16sp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@id/imgAdIcon"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/imgAdCloseButton" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- App Rating (5) -->
     <TextView
@@ -41,35 +41,22 @@
         android:id="@+id/lbAdRating"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="App Rating"
         android:layout_marginStart="8dp"
         app:layout_constraintStart_toEndOf="@id/imgAdIcon"
         app:layout_constraintTop_toBottomOf="@id/lbAdTitle"
-        app:layout_constraintEnd_toStartOf="@id/imgAdCloseButton" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- Sponsored By Text (6) -->
     <TextView
         android:id="@+id/lbAdSponsor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sponsored by Text"
+        tools:text="Sponsored by Text"
         android:textSize="12sp"
         android:textColor="#808080"
         android:layout_marginStart="8dp"
         app:layout_constraintStart_toEndOf="@id/imgAdIcon"
         app:layout_constraintTop_toBottomOf="@id/lbAdRating" />
-
-    <!-- Ad Close Button (7) -->
-    <ImageView
-        android:id="@+id/imgAdCloseButton"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@android:drawable/ic_menu_close_clear_cancel"
-        android:contentDescription="Close"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Media View (3) -->
     <com.vungle.ads.internal.ui.view.MediaView
@@ -91,18 +78,21 @@
         android:id="@+id/lbAdBody"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Body Text"
+        tools:text="Body Text this is a very long long long long long long long long long long test "
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pnlVideoAd" />
+        app:layout_constraintTop_toBottomOf="@id/pnlVideoAd"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/btnAdCta"
+        />
 
     <!-- Call to Action Button (9) -->
     <Button
         android:id="@+id/btnAdCta"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Call to Action"
+        tools:text="Call to Action"
         android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

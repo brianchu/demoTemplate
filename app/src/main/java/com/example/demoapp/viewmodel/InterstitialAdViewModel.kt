@@ -3,12 +3,15 @@ package com.example.demoapp.viewmodel
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.demoapp.DemoApplication
 import com.vungle.ads.AdConfig
 import com.vungle.ads.BaseAd
 import com.vungle.ads.InterstitialAd
 import com.vungle.ads.InterstitialAdListener
 import com.vungle.ads.VungleError
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,7 +22,17 @@ class InterstitialAdViewModel @Inject constructor(
     private var interstitialAd: InterstitialAd? = null
     private var onAdDismissedCallback: (() -> Unit)? = null
 
-    fun loadAd(placementId: String = PLACEMENT_INTERSTITIAL) {
+    init {
+        viewModelScope.launch {
+            (application as DemoApplication).isAdSdkInitialized.collect { isInitialized ->
+                if (isInitialized) {
+                    loadAd()
+                }
+            }
+        }
+    }
+
+    private fun loadAd(placementId: String = PLACEMENT_INTERSTITIAL) {
         val context = getApplication<Application>().applicationContext
 
         interstitialAd = InterstitialAd(
@@ -36,7 +49,6 @@ class InterstitialAdViewModel @Inject constructor(
                     Log.d(TAG, "interstitial ad (${baseAd.creativeId}): onAdEnd")
                     onAdDismissedCallback?.invoke()
                     onAdDismissedCallback = null
-                    loadAd()
                 }
 
                 override fun onAdFailedToLoad(baseAd: BaseAd, adError: VungleError) {
@@ -48,7 +60,6 @@ class InterstitialAdViewModel @Inject constructor(
                     Log.d(TAG, "interstitial ad (${baseAd.creativeId}): onFailedToPlay ${adError.errorMessage}")
                     onAdDismissedCallback?.invoke()
                     onAdDismissedCallback = null
-                    loadAd()
                 }
 
                 override fun onAdImpression(baseAd: BaseAd) {}
@@ -86,7 +97,6 @@ class InterstitialAdViewModel @Inject constructor(
 }
 
 const val PLACEMENT_MREC = "VIDEOAD1-7818877"
-const val PLACEMENT_NATIVE = "NATIVEINSIDEROW-0006551"
 const val PLACEMENT_APP_OPEN = "STARTUPAD-0506795"
 const val PLACEMENT_INTERSTITIAL = "MYINTERSTITIAL-2494988"
-private const val TAG = "adviewmodel"
+private const val TAG = "ads"

@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.demoapp.DemoApplication
@@ -32,7 +33,9 @@ fun BannerAd() {
     val context = LocalContext.current
 
     LaunchedEffect(isAdSdkInitialized.value) {
+        Log.d(TAG, "banner ad launched effect ${isAdSdkInitialized.value}")
         if (isAdSdkInitialized.value) {
+            Log.d(TAG, "banner ad: create")
             adBanner.value = createBanner(context)
         }
     }
@@ -40,14 +43,15 @@ fun BannerAd() {
     adBanner.value?.let { banner ->
         AndroidView(
             factory = { banner },
-            modifier = Modifier.fillMaxWidth().height(48.dp)
+            modifier = Modifier.fillMaxWidth()
         )
     } ?: run {
         Text(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(40.dp),
-            text = "Loading Ads"
+            text = "Loading Ads ... ",
+            textAlign = TextAlign.Center
         )
     }
 }
@@ -92,4 +96,4 @@ fun createBanner(context: Context): VungleBannerView {
     return result
 }
 
-const val TAG = "DemoApp"
+private const val TAG = "ads"
